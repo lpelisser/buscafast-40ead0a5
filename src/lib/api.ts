@@ -1,4 +1,4 @@
-export const API_URL = "https://SEU-SERVICO.onrender.com";
+export const API_URL = "https://buscafast-2-0.onrender.com";
 
 const TOKEN_KEY = "bf_token";
 export const getToken = () =>
