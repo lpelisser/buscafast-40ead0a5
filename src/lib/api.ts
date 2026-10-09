@@ -46,7 +46,7 @@ export async function api<T = unknown>(
         body: options.body !== undefined ? JSON.stringify(options.body) : null,
       });
     } catch {
-      throw new ApiError(0, "Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.");
+      throw new ApiError(0, "O servidor não respondeu ou teve um erro interno. Tente novamente em instantes.");
     }
     if (res.status === 401 && token) {
       clearToken();
