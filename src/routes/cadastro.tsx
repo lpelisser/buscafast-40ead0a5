@@ -85,7 +85,7 @@ function Cadastro() {
             <input type="checkbox" className="mt-1 h-6 w-6 accent-primary" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
             <span>Aceito os Termos de Uso e Privacidade</span>
           </label>
-          {touched.username && !terms && <p className="font-medium text-destructive">⚠ É preciso aceitar os termos</p>}
+          {touched["username"] && !terms && <p className="font-medium text-destructive">⚠ É preciso aceitar os termos</p>}
         </div>
         {err ? <ErrorBox error={err} /> : null}
         <Btn type="submit" variant="accent" className="w-full text-lg" disabled={busy}>{busy ? "Criando conta..." : "Criar conta"}</Btn>

@@ -34,7 +34,7 @@ export async function api<T = unknown>(
 ): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   const token = getToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (token) headers["Authorization"] = `Bearer ${token}`;
   pending++;
   const timer = setTimeout(() => setSlow(true), 4000);
   try {
@@ -43,7 +43,7 @@ export async function api<T = unknown>(
       res = await fetch(`${API_URL}${path}`, {
         method: options.method ?? "GET",
         headers,
-        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        body: options.body !== undefined ? JSON.stringify(options.body) : null,
       });
     } catch {
       throw new ApiError(0, "Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.");
