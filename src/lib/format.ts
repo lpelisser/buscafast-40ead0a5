@@ -21,11 +21,11 @@ export function isValidCPF(v: string) {
   if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false;
   const calc = (n: number) => {
     let s = 0;
-    for (let i = 0; i < n; i++) s += +c[i] * (n + 1 - i);
+    for (let i = 0; i < n; i++) s += Number(c[i]) * (n + 1 - i);
     const r = (s * 10) % 11;
     return r === 10 ? 0 : r;
   };
-  return calc(9) === +c[9] && calc(10) === +c[10];
+  return calc(9) === Number(c[9]) && calc(10) === Number(c[10]);
 }
 
 export const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());

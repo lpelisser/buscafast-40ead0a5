@@ -20,7 +20,7 @@ export function ProductFeed({ basePath, queryKey, filter = "" }: { basePath: str
     const el = sentinel.current;
     if (!el) return;
     const io = new IntersectionObserver((e) => {
-      if (e[0].isIntersecting && q.hasNextPage && !q.isFetchingNextPage) q.fetchNextPage();
+      if (e[0]?.isIntersecting && q.hasNextPage && !q.isFetchingNextPage) q.fetchNextPage();
     }, { rootMargin: "600px" });
     io.observe(el);
     return () => io.disconnect();

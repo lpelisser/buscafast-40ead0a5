@@ -31,7 +31,7 @@ function Gallery({ p }: { p: Product }) {
   return (
     <section aria-label="Galeria de fotos">
       <div className="relative">
-        <img src={imgs[i].url} alt={`Foto ${i + 1} de ${imgs.length}: ${p.title}`} className="aspect-square w-full rounded-2xl bg-muted object-cover" />
+        <img src={imgs[i]?.url} alt={`Foto ${i + 1} de ${imgs.length}: ${p.title}`} className="aspect-square w-full rounded-2xl bg-muted object-cover" />
         {imgs.length > 1 && (
           <>
             <button onClick={() => go(-1)} aria-label="Foto anterior" className="tap absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-card p-2 shadow-lg"><ChevronLeft className="h-6 w-6" aria-hidden /></button>
