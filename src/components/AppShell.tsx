@@ -62,7 +62,7 @@ export function BottomNav() {
               activeProps={{ className: "text-primary font-bold underline underline-offset-4", "aria-current": "page" }}
             >
               <Icon className="h-6 w-6" aria-hidden />
-              {label}
+              {to === "/vender" && isSeller ? "Meu painel" : label}
             </Link>
           </li>
         ))}
