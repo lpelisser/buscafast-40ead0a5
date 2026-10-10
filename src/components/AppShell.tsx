@@ -42,6 +42,14 @@ const nav = [
 ] as const;
 
 export function BottomNav() {
+  const me = useQuery({
+    queryKey: ["me"],
+    queryFn: () => api<Me>("/users/me"),
+    enabled: !!getToken(),
+    staleTime: 60_000,
+    retry: false,
+  });
+  const isSeller = me.data?.account_type === "anunciante";
   return (
     <nav aria-label="Navegação principal" className="fixed inset-x-0 bottom-0 z-40 border-t-2 bg-card">
       <ul className="mx-auto flex max-w-2xl justify-around">
