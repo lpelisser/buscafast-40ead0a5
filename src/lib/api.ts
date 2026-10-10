@@ -83,4 +83,4 @@ export type Product = {
 };
 export type Category = { id: number; name: string; icon: string };
 export type Comment = { id: number; user_id: number; content: string; created_at: string };
-export type Me = { id: number; username: string; full_name: string; email: string; is_verified_seller?: boolean };
+export type Me = { id: number; username: string; full_name: string; email: string; is_verified_seller?: boolean; account_type?: string };

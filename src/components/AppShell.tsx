@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Home, LayoutGrid, Heart, PlusCircle, User, Contrast } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useA11y } from "@/lib/a11y";
-import { getToken, subscribeSlow } from "@/lib/api";
+import { api, getToken, subscribeSlow, type Me } from "@/lib/api";
 
 export function TopBar() {
   const { scale, setScale, contrast, toggleContrast } = useA11y();
