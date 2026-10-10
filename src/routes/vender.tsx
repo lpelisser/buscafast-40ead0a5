@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppPage } from "@/components/AppShell";
 import { Btn, ErrorBox, Field, inputCls } from "@/components/ui-bits";
-import { api, type Product } from "@/lib/api";
+import { api, ApiError, type Product } from "@/lib/api";
 import { useA11y } from "@/lib/a11y";
 import { useCategories } from "./index";
 
@@ -23,20 +23,63 @@ function Vender() {
   const { announce } = useA11y();
   const cats = useCategories();
   const [f, setF] = useState({ title: "", description: "", price: "", outlet_link: "", category_id: "" });
-  const [imgs, setImgs] = useState<string[]>([""]);
+  const [imgs, setImgs] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [upErr, setUpErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<unknown>(null);
   const price = parseFloat(f.price.replace(/\./g, "").replace(",", "."));
   const valid = f.title.trim() && f.description.trim() && price > 0 && f.category_id;
 
+  const uploadOne = async (file: File): Promise<string> => {
+    let sig: { upload_url: string; api_key: string; timestamp: string | number; folder: string; signature: string };
+    try {
+      sig = await api("/uploads/assinatura");
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 403) throw new Error("Ative sua conta de anunciante");
+      if (e instanceof ApiError && e.status === 500) throw new Error("Envio de fotos indisponível no momento");
+      throw e;
+    }
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("api_key", String(sig.api_key));
+    fd.append("timestamp", String(sig.timestamp));
+    fd.append("folder", String(sig.folder));
+    fd.append("signature", String(sig.signature));
+    let res: Response;
+    try { res = await fetch(sig.upload_url, { method: "POST", body: fd }); }
+    catch { throw new Error("Não foi possível enviar a foto. Verifique sua internet."); }
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data?.secure_url) throw new Error(data?.error?.message ? `Falha ao enviar a foto: ${data.error.message}` : "Falha ao enviar a foto.");
+    return data.secure_url as string;
+  };
+
+  const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []).slice(0, 5 - imgs.length);
+    e.target.value = "";
+    if (!files.length) return;
+    setUpErr(null); setUploading(true);
+    try {
+      for (const file of files) {
+        const url = await uploadOne(file);
+        setImgs((o) => [...o, url]);
+      }
+      announce("Fotos enviadas", "ok");
+    } catch (er) {
+      const msg = er instanceof Error ? er.message : "Falha ao enviar a foto.";
+      setUpErr(msg); announce(msg, "erro");
+    } finally { setUploading(false); }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) { announce("Aguarde o envio das fotos terminar", "erro"); return; }
     if (!valid) { announce("Preencha título, descrição, preço e categoria", "erro"); return; }
     setBusy(true); setErr(null);
     try {
       const p = await api<Product>("/products", {
         method: "POST",
-        body: { title: f.title.trim(), description: f.description.trim(), price, outlet_link: f.outlet_link.trim(), category_id: Number(f.category_id), image_urls: imgs.map((s) => s.trim()).filter(Boolean) },
+        body: { title: f.title.trim(), description: f.description.trim(), price, outlet_link: f.outlet_link.trim(), category_id: Number(f.category_id), image_urls: imgs },
       });
       announce("Produto publicado!", "ok");
       if (p?.id) navigate({ to: "/produto/$id", params: { id: String(p.id) } });
@@ -60,19 +103,30 @@ function Vender() {
           </select>
         </Field>
         <fieldset className="space-y-3">
-          <legend className="font-semibold">Fotos (até 5 links de imagem)</legend>
-          {imgs.map((u, i) => (
-            <div key={i} className="flex gap-2">
-              <label htmlFor={`img${i}`} className="sr-only">Link da imagem {i + 1}</label>
-              <input id={`img${i}`} type="url" className={inputCls} placeholder={`Link da imagem ${i + 1}`} value={u}
-                onChange={(e) => setImgs(imgs.map((x, j) => (j === i ? e.target.value : x)))} />
-              {imgs.length > 1 && <Btn type="button" variant="ghost" onClick={() => setImgs(imgs.filter((_, j) => j !== i))}>Remover</Btn>}
+          <legend className="font-semibold">Fotos (até 5)</legend>
+          {imgs.length > 0 && (
+            <ul className="grid grid-cols-3 gap-2">
+              {imgs.map((u, i) => (
+                <li key={u} className="space-y-1">
+                  <img src={u} alt={`Foto ${i + 1} do produto`} className="aspect-square w-full rounded-lg object-cover" />
+                  <Btn type="button" variant="ghost" className="w-full" onClick={() => setImgs(imgs.filter((_, j) => j !== i))}>Remover foto {i + 1}</Btn>
+                </li>
+              ))}
+            </ul>
+          )}
+          {imgs.length < 5 && (
+            <div>
+              <label htmlFor="fotos" className="tap inline-flex cursor-pointer items-center rounded-xl border-2 border-primary px-4 py-2 font-semibold text-primary">
+                {uploading ? "Enviando foto..." : "Escolher fotos"}
+              </label>
+              <input id="fotos" type="file" accept="image/*" multiple className="sr-only" disabled={uploading} onChange={onFiles} />
             </div>
-          ))}
-          {imgs.length < 5 && <Btn type="button" variant="outline" onClick={() => setImgs([...imgs, ""])}>Adicionar outra imagem</Btn>}
+          )}
+          {uploading && <p role="status" aria-live="polite" className="font-semibold">Enviando foto...</p>}
+          {upErr && <p role="alert" className="font-medium text-destructive">⚠ {upErr}</p>}
         </fieldset>
         {err ? <ErrorBox error={err} /> : null}
-        <Btn type="submit" variant="accent" className="w-full text-lg" disabled={busy}>{busy ? "Publicando..." : "Publicar produto"}</Btn>
+        <Btn type="submit" variant="accent" className="w-full text-lg" disabled={busy || uploading}>{busy ? "Publicando..." : uploading ? "Aguarde o envio das fotos..." : "Publicar produto"}</Btn>
       </form>
     </AppPage>
   );
