@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Home, LayoutGrid, Heart, PlusCircle, User, Contrast } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useA11y } from "@/lib/a11y";
-import { getToken, subscribeSlow } from "@/lib/api";
+import { api, getToken, subscribeSlow, type Me } from "@/lib/api";
 
 export function TopBar() {
   const { scale, setScale, contrast, toggleContrast } = useA11y();
@@ -41,6 +42,14 @@ const nav = [
 ] as const;
 
 export function BottomNav() {
+  const me = useQuery({
+    queryKey: ["me"],
+    queryFn: () => api<Me>("/users/me"),
+    enabled: !!getToken(),
+    staleTime: 60_000,
+    retry: false,
+  });
+  const isSeller = me.data?.account_type === "anunciante";
   return (
     <nav aria-label="Navegação principal" className="fixed inset-x-0 bottom-0 z-40 border-t-2 bg-card">
       <ul className="mx-auto flex max-w-2xl justify-around">
@@ -53,7 +62,7 @@ export function BottomNav() {
               activeProps={{ className: "text-primary font-bold underline underline-offset-4", "aria-current": "page" }}
             >
               <Icon className="h-6 w-6" aria-hidden />
-              {label}
+              {to === "/vender" && isSeller ? "Meu painel" : label}
             </Link>
           </li>
         ))}

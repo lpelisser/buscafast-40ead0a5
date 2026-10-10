@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { Store } from "lucide-react";
 import { AppPage } from "@/components/AppShell";
-import { Btn, ErrorBox, Field, inputCls } from "@/components/ui-bits";
-import { api, ApiError, type Product } from "@/lib/api";
+import { Btn, ErrorBox, Field, inputCls, Loading } from "@/components/ui-bits";
+import { api, ApiError, type Me, type Product } from "@/lib/api";
 import { useA11y } from "@/lib/a11y";
 import { useCategories } from "./index";
 
@@ -19,6 +21,81 @@ export const Route = createFileRoute("/vender")({
 });
 
 function Vender() {
+  const qc = useQueryClient();
+  const me = useQuery({ queryKey: ["me"], queryFn: () => api<Me>("/users/me") });
+  const [forceActivate, setForceActivate] = useState(false);
+
+  if (me.isPending) {
+    return (
+      <AppPage>
+        <Loading text="Carregando..." />
+      </AppPage>
+    );
+  }
+  if (me.isError) {
+    return (
+      <AppPage>
+        <ErrorBox error={me.error} onRetry={() => me.refetch()} />
+      </AppPage>
+    );
+  }
+  const isSeller = me.data?.account_type === "anunciante";
+  if (!isSeller || forceActivate) {
+    return (
+      <AppPage>
+        <QueroAnunciar
+          onDone={() => {
+            setForceActivate(false);
+            qc.invalidateQueries({ queryKey: ["me"] });
+          }}
+        />
+      </AppPage>
+    );
+  }
+  return <SellerForm onForbidden={() => setForceActivate(true)} />;
+}
+
+function QueroAnunciar({ onDone }: { onDone: () => void }) {
+  const { announce } = useA11y();
+  const [store, setStore] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  const valid = store.trim().length >= 2;
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!valid) { announce("Digite o nome da loja com pelo menos 2 letras", "erro"); return; }
+    setBusy(true); setErr(null);
+    try {
+      await api("/users/me/anunciante", { method: "POST", body: { store_name: store.trim() } });
+      announce("Conta de anunciante ativada!", "ok");
+      onDone();
+    } catch (e) { setErr(e); } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-extrabold text-primary">Anuncie no Busca Fast</h1>
+      <div className="flex gap-3 rounded-2xl border-2 bg-card p-5">
+        <Store className="mt-1 h-8 w-8 shrink-0 text-primary" aria-hidden />
+        <p className="text-lg leading-relaxed">
+          O Busca Fast leva clientes até o site da sua loja. Você publica a foto, o preço e a descrição, e quem se interessar toca em "Ir até o site".
+        </p>
+      </div>
+      <form onSubmit={submit} className="space-y-5" noValidate>
+        <Field id="store" label="Nome da loja" hint="Pelo menos 2 letras">
+          <input id="store" className={inputCls} value={store} onChange={(e) => setStore(e.target.value)} aria-describedby="store-hint" />
+        </Field>
+        {err ? <ErrorBox error={err} /> : null}
+        <Btn type="submit" variant="accent" className="w-full text-lg" disabled={busy || !valid}>
+          {busy ? "Ativando..." : "Quero anunciar"}
+        </Btn>
+      </form>
+    </div>
+  );
+}
+
+function SellerForm({ onForbidden }: { onForbidden: () => void }) {
   const navigate = useNavigate();
   const { announce } = useA11y();
   const cats = useCategories();
@@ -36,7 +113,7 @@ function Vender() {
     try {
       sig = await api("/uploads/assinatura");
     } catch (e) {
-      if (e instanceof ApiError && e.status === 403) throw new Error("Ative sua conta de anunciante");
+      if (e instanceof ApiError && e.status === 403) { onForbidden(); throw new Error("Ative sua conta de anunciante"); }
       if (e instanceof ApiError && e.status === 500) throw new Error("Envio de fotos indisponível no momento");
       throw e;
     }
@@ -84,7 +161,10 @@ function Vender() {
       announce("Produto publicado!", "ok");
       if (p?.id) navigate({ to: "/produto/$id", params: { id: String(p.id) } });
       else navigate({ to: "/" });
-    } catch (e) { setErr(e); } finally { setBusy(false); }
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 403) { onForbidden(); return; }
+      setErr(e);
+    } finally { setBusy(false); }
   };
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
 
