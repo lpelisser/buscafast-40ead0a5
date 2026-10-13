@@ -25,7 +25,8 @@ export function useToggle(path: string, onMsg: [string, string]) {
 
 const actionCls = "tap flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-50";
 
-export function ProductCard({ p }: { p: Product }) {
+export function ProductCard({ p, level = 2 }: { p: Product; level?: 2 | 3 }) {
+  const H = level === 3 ? "h3" : "h2";
   const img = [...(p.images ?? [])].sort((a, b) => a.position - b.position)[0];
   const like = useToggle(`/feed/produtos/${p.id}/curtir`, ["Você curtiu o produto", "Curtida removida"]);
   const fav = useToggle(`/products/${p.id}/favoritar`, ["Adicionado aos favoritos", "Removido dos favoritos"]);
@@ -42,7 +43,7 @@ export function ProductCard({ p }: { p: Product }) {
           </div>
         )}
         <div className="p-4">
-          <h2 id={`t-${p.id}`} className="text-xl font-bold leading-snug">{p.title}</h2>
+          <H id={`t-${p.id}`} className="text-xl font-bold leading-snug">{p.title}</H>
           <p className="mt-1 text-2xl font-extrabold text-primary">{brl(p.price)}</p>
         </div>
       </Link>
