@@ -20,7 +20,7 @@ export function TopBar() {
           <button className="tap rounded-lg px-2 font-bold hover:bg-primary-foreground/15" onClick={() => setScale(scale - 0.1)} aria-label="Diminuir tamanho do texto">A-</button>
           <button className="tap rounded-lg px-2 font-bold hover:bg-primary-foreground/15" onClick={() => setScale(scale + 0.1)} aria-label="Aumentar tamanho do texto">A+</button>
           <button className="tap flex items-center gap-1 rounded-lg px-2 text-sm font-semibold hover:bg-primary-foreground/15" onClick={toggleContrast} aria-pressed={contrast}>
-            <Contrast className="h-5 w-5" aria-hidden /> Alto contraste{contrast ? ": ligado" : ""}
+            <Contrast className="h-5 w-5" aria-hidden /> Alto contraste: {contrast ? "ligado" : "desligado"}
           </button>
         </div>
       </div>
