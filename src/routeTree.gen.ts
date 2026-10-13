@@ -14,10 +14,12 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as CategoriasRouteImport } from './routes/categorias'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PainelRouteImport } from './routes/painel'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PreferenciasRouteImport } from './routes/preferencias'
 import { Route as VenderRouteImport } from './routes/vender'
 import { Route as CategoriaIdRouteImport } from './routes/categoria.$id'
+import { Route as EditarIdRouteImport } from './routes/editar.$id'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -45,6 +47,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelRoute = PainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
@@ -65,6 +72,11 @@ const CategoriaIdRoute = CategoriaIdRouteImport.update({
   path: '/categoria/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditarIdRoute = EditarIdRouteImport.update({
+  id: '/editar/$id',
+  path: '/editar/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdutoIdRoute = ProdutoIdRouteImport.update({
   id: '/produto/$id',
   path: '/produto/$id',
@@ -77,10 +89,12 @@ export interface FileRoutesByFullPath {
   '/categorias': typeof CategoriasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
+  '/painel': typeof PainelRoute
   '/perfil': typeof PerfilRoute
   '/preferencias': typeof PreferenciasRoute
   '/vender': typeof VenderRoute
   '/categoria/$id': typeof CategoriaIdRoute
+  '/editar/$id': typeof EditarIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
 export interface FileRoutesByTo {
@@ -89,10 +103,12 @@ export interface FileRoutesByTo {
   '/categorias': typeof CategoriasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
+  '/painel': typeof PainelRoute
   '/perfil': typeof PerfilRoute
   '/preferencias': typeof PreferenciasRoute
   '/vender': typeof VenderRoute
   '/categoria/$id': typeof CategoriaIdRoute
+  '/editar/$id': typeof EditarIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
 export interface FileRoutesById {
@@ -102,10 +118,12 @@ export interface FileRoutesById {
   '/categorias': typeof CategoriasRoute
   '/favoritos': typeof FavoritosRoute
   '/login': typeof LoginRoute
+  '/painel': typeof PainelRoute
   '/perfil': typeof PerfilRoute
   '/preferencias': typeof PreferenciasRoute
   '/vender': typeof VenderRoute
   '/categoria/$id': typeof CategoriaIdRoute
+  '/editar/$id': typeof EditarIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
 export interface FileRouteTypes {
@@ -116,10 +134,12 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/favoritos'
     | '/login'
+    | '/painel'
     | '/perfil'
     | '/preferencias'
     | '/vender'
     | '/categoria/$id'
+    | '/editar/$id'
     | '/produto/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,10 +148,12 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/favoritos'
     | '/login'
+    | '/painel'
     | '/perfil'
     | '/preferencias'
     | '/vender'
     | '/categoria/$id'
+    | '/editar/$id'
     | '/produto/$id'
   id:
     | '__root__'
@@ -140,10 +162,12 @@ export interface FileRouteTypes {
     | '/categorias'
     | '/favoritos'
     | '/login'
+    | '/painel'
     | '/perfil'
     | '/preferencias'
     | '/vender'
     | '/categoria/$id'
+    | '/editar/$id'
     | '/produto/$id'
   fileRoutesById: FileRoutesById
 }
@@ -153,10 +177,12 @@ export interface RootRouteChildren {
   CategoriasRoute: typeof CategoriasRoute
   FavoritosRoute: typeof FavoritosRoute
   LoginRoute: typeof LoginRoute
+  PainelRoute: typeof PainelRoute
   PerfilRoute: typeof PerfilRoute
   PreferenciasRoute: typeof PreferenciasRoute
   VenderRoute: typeof VenderRoute
   CategoriaIdRoute: typeof CategoriaIdRoute
+  EditarIdRoute: typeof EditarIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
 }
 
@@ -197,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel': {
+      id: '/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof PainelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
@@ -225,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editar/$id': {
+      id: '/editar/$id'
+      path: '/editar/$id'
+      fullPath: '/editar/$id'
+      preLoaderRoute: typeof EditarIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produto/$id': {
       id: '/produto/$id'
       path: '/produto/$id'
@@ -241,10 +281,12 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriasRoute: CategoriasRoute,
   FavoritosRoute: FavoritosRoute,
   LoginRoute: LoginRoute,
+  PainelRoute: PainelRoute,
   PerfilRoute: PerfilRoute,
   PreferenciasRoute: PreferenciasRoute,
   VenderRoute: VenderRoute,
   CategoriaIdRoute: CategoriaIdRoute,
+  EditarIdRoute: EditarIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
 }
 export const routeTree = rootRouteImport
