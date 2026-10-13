@@ -7,7 +7,7 @@ import { Assistant } from "@/components/Assistant";
 import { SimilarCarousel } from "@/components/SimilarCarousel";
 import { useToggle } from "@/components/ProductCard";
 import { Btn, ErrorBox, Loading, inputCls } from "@/components/ui-bits";
-import { api, type Comment, type Product } from "@/lib/api";
+import { api, getToken, type Comment, type Me, type Product } from "@/lib/api";
 import { useA11y } from "@/lib/a11y";
 import { brl, dateBR } from "@/lib/format";
 
@@ -101,6 +101,7 @@ function ProductPage() {
   const { id } = Route.useParams();
   const q = useQuery({ queryKey: ["product", id], queryFn: () => api<Product>(`/products/${id}`) });
   const p = q.data;
+  const me = useQuery({ queryKey: ["me"], queryFn: () => api<Me>("/users/me"), enabled: !!getToken(), retry: false });
   const like = useToggle(`/feed/produtos/${id}/curtir`, ["Você curtiu o produto", "Curtida removida"]);
   const fav = useToggle(`/products/${id}/favoritar`, ["Adicionado aos favoritos", "Removido dos favoritos"]);
   const follow = useToggle(`/feed/vendedores/${p?.seller_id}/seguir`, ["Você está seguindo o vendedor", "Você deixou de seguir"]);
@@ -123,6 +124,9 @@ function ProductPage() {
               <Star className="h-5 w-5" aria-hidden fill={fav.on ? "currentColor" : "none"} /> {fav.on ? "Favoritado" : "Favoritar"}
             </Btn>
           </div>
+          {me.data && me.data.id === p.seller_id && (
+            <Link to="/editar/$id" params={{ id: String(p.id) }} className="tap mt-3 inline-flex items-center rounded-xl bg-primary px-4 py-2 font-semibold text-primary-foreground">Editar esta publicação</Link>
+          )}
           <section className="mt-6" aria-labelledby="desc-t">
             <h2 id="desc-t" className="text-2xl font-bold">Descrição</h2>
             <p className="mt-2 whitespace-pre-wrap text-lg">{p.description}</p>

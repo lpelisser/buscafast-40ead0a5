@@ -56,7 +56,7 @@ export function BottomNav() {
         {nav.map(({ to, label, Icon }) => (
           <li key={to} className="flex-1">
             <Link
-              to={to}
+              to={to === "/vender" && isSeller ? "/painel" : to}
               activeOptions={{ exact: to === "/" }}
               className="tap flex flex-col items-center gap-0.5 py-2 text-sm font-medium text-muted-foreground"
               activeProps={{ className: "text-primary font-bold underline underline-offset-4", "aria-current": "page" }}

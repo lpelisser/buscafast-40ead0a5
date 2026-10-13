@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Store } from "lucide-react";
@@ -170,7 +170,8 @@ function SellerForm({ onForbidden }: { onForbidden: () => void }) {
 
   return (
     <AppPage>
-      <h1 className="mb-4 text-3xl font-extrabold text-primary">Vender um produto</h1>
+      <h1 className="mb-2 text-3xl font-extrabold text-primary">Vender um produto</h1>
+      <Link to="/painel" className="tap mb-4 inline-flex items-center font-semibold text-primary underline">Ver e editar minhas publicações</Link>
       <form onSubmit={submit} className="space-y-5" noValidate>
         <Field id="title" label="Título"><input id="title" className={inputCls} value={f.title} onChange={set("title")} /></Field>
         <Field id="desc" label="Descrição"><textarea id="desc" rows={4} className={inputCls} value={f.description} onChange={set("description")} /></Field>
