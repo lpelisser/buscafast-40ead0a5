@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Mic, MicOff, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AppPage } from "@/components/AppShell";
 import { ProductFeed } from "@/components/ProductFeed";
+import { SearchResults } from "@/components/SearchResults";
 import { inputCls } from "@/components/ui-bits";
 import { api, type Category } from "@/lib/api";
 
@@ -54,18 +55,21 @@ function VoiceButton({ onResult }: { onResult: (t: string) => void }) {
 
 function Home() {
   const [q, setQ] = useState("");
+  const [term, setTerm] = useState("");
+  useEffect(() => { const t = setTimeout(() => setTerm(q.trim()), 400); return () => clearTimeout(t); }, [q]);
+  const onVoice = useCallback((t: string) => { setQ(t); setTerm(t.trim()); }, []);
   const cats = useCategories();
   return (
     <AppPage
       header={
         <div className="mx-auto max-w-2xl space-y-2 px-4 py-3">
-          <form role="search" className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+          <form role="search" className="flex gap-2" onSubmit={(e) => { e.preventDefault(); setTerm(q.trim()); }}>
             <label htmlFor="busca" className="sr-only">Buscar produtos</label>
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" aria-hidden />
               <input id="busca" type="search" className={`${inputCls} pl-10`} placeholder="Buscar produtos" value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
-            <VoiceButton onResult={setQ} />
+            <VoiceButton onResult={onVoice} />
           </form>
           <nav aria-label="Filtro rápido de categorias" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
             {cats.isPending && <span className="py-2 text-sm text-muted-foreground">Carregando categorias...</span>}
@@ -81,7 +85,12 @@ function Home() {
       }
     >
       <h1 className="sr-only">Feed de produtos</h1>
-      <ProductFeed basePath="/products/feed" queryKey={["feed"]} filter={q} />
+      {term.length >= 2 ? <SearchResults term={term} /> : (
+        <>
+          {q.trim().length === 1 && <p role="status" className="mb-3 text-muted-foreground">Digite pelo menos 2 letras para buscar.</p>}
+          <ProductFeed basePath="/products/feed" queryKey={["feed"]} />
+        </>
+      )}
     </AppPage>
   );
 }

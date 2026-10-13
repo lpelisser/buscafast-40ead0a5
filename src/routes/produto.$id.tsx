@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Heart, ImageOff, St
 import { useState } from "react";
 import { AppPage } from "@/components/AppShell";
 import { Assistant } from "@/components/Assistant";
+import { SimilarCarousel } from "@/components/SimilarCarousel";
 import { useToggle } from "@/components/ProductCard";
 import { Btn, ErrorBox, Loading, inputCls } from "@/components/ui-bits";
 import { api, type Comment, type Product } from "@/lib/api";
@@ -136,6 +137,7 @@ function ProductPage() {
               {follow.on ? "Seguindo" : "Seguir"}
             </Btn>
           </section>
+          <SimilarCarousel id={p.id} />
           <Comments id={p.id} />
           <Assistant productId={p.id} />
           <div className="fixed inset-x-0 bottom-0 z-30 border-t-2 bg-card p-3">
